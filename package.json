@@ -1,11 +1,8 @@
 {
-  "name": "@lycl/react-native-template",
+  "name": "@teamlycl/react-native-template",
   "version": "0.0.1",
   "description": "Team Lycl React Native Template",
   "repository": "https://github.com/teamlycl/react-native-template-lycl.git",
   "author": "yozi <j16412000kr@gmail.com>",
-  "license": "MIT",
-  "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
-  }
+  "license": "MIT"
 }
