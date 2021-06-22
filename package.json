@@ -4,5 +4,6 @@
   "description": "Team Lycl React Native Template",
   "repository": "https://github.com/teamlycl/react-native-template-lycl.git",
   "author": "yozi <j16412000kr@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "private": false
 }

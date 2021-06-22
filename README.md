@@ -3,5 +3,5 @@
 ## How to
 
 ```
-npx react-native init AppName --template #
+npx react-native init AppName --template @teamlycl/react-native-template
 ```
