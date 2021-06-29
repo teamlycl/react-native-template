@@ -1,0 +1,6 @@
+git_url('https://github.com/##TYPE_PLEASE##')
+
+storage_mode('git')
+
+app_identifier('##TYPE_PLEASE##')
+username('##TYPE_PLEASE##')

@@ -1,0 +1,57 @@
+PROJECT_NAME = "##TYPE_PLEASE##"
+XCODE_PROJECT = "./#{PROJECT_NAME}.xcodeproj"
+XCODE_WORKSPACE = "./#{PROJECT_NAME}.xcworkspace"
+OUTPUT_DIRECTORY = "./fastlane/builds"
+
+default_platform(:ios)
+
+platform :ios do
+  desc "Beta Build and firebase app distribution"
+  lane :beta do
+    configuration_name = "Release"
+
+    create_keychain(
+      name: ENV["KEYCHAIN_NAME"],
+      password: ENV["KEYCHAIN_PASSWORD"],
+      timeout: 1800,
+      default_keychain: true,
+      unlock: true,
+      lock_when_sleeps: false
+    )
+
+    match(
+      type: 'adhoc', 
+      readonly: is_ci, 
+      verbose: true, 
+      git_basic_authorization: Base64.strict_encode64(ENV["GIT_AUTHORIZATION"]),
+      keychain_name: ENV["KEYCHAIN_NAME"],
+      keychain_password: ENV["KEYCHAIN_PASSWORD"]
+    )
+
+    clear_derived_data
+    increment_build_number
+    
+    gym(
+      scheme: ENV["PROJECT_NAME"],
+      workspace: XCODE_WORKSPACE,
+      clean: true,
+      silent: true,
+      output_directory: OUTPUT_DIRECTORY,
+      output_name: "#{PROJECT_NAME}.ipa",
+      configuration: configuration_name,
+      export_options: {
+        method: ENV["SIGH_PROFILE_TYPE"],
+        provisioningProfiles: ENV['MATCH_PROVISIONING_PROFILE_MAPPING'],
+        signingStyle: "manual",
+        path: XCODE_PROJECT
+      },
+    )
+
+    firebase_app_distribution(
+      app: ENV["FIREBASE_APP"],
+      firebase_cli_token: ENV["FIREBASE_TOKEN"],
+      groups: ENV["FIREBASE_GROUP"],
+      release_notes: ENV["RELEASE_NOTE"],
+      debug: true)
+  end
+end

@@ -1,0 +1,102 @@
+name: android beta deploy
+
+on: 
+  workflow_dispatch:
+    inputs:
+      app_target:
+        description: 'firebase app distribution group'
+        required: true
+        default: 'aos_tester_group'
+      release_notes:
+        description: 'release notes'
+        required: false
+        default: 'bugfix'
+
+env:
+    NODE_VERSION: 16.x
+    GIT_AUTHORIZATION: ${{ secrets.GH_TOKEN }}
+    CACHE_GRADLE_WRAPPER: gradle-wrapper
+    CACHE_GRADLE_CACHES: gradle-caches
+    CACHE_NODE_MODULE: node_modules@v1
+
+jobs:
+  init:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache node modules
+        id: node-cache
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ env.CACHE_NODE_MODULE }}-${{ hashFiles('**/package-lock.json') }}
+            
+      - name: Install packages
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+
+  deploy-android-beta:
+    runs-on: ubuntu-latest
+    needs: [init]
+
+    env: 
+      ANDROID_KEY_FILE_NAME: lycl.keystore
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_PASSWORD }}
+      FIREBASE_APP: ${{ secrets.FIREBASE_APP_ID }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache Node modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ env.CACHE_NODE_MODULE }}-${{ hashFiles('**/package-lock.json') }}
+          
+      - name: Cache Gradle Wrapper
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-${{ env.CACHE_GRADLE_WRAPPER }}-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Cache Gradle Dependencies
+        uses: actions/cache@v2
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-${{ env.CACHE_GRADLE_CACHES }}-${{ hashFiles('gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Generate Release Key
+        run: |
+          echo "${{ secrets.ANDROID_KEY }}" | base64 -d > android/app/${{ env.ANDROID_KEY_FILE_NAME }}
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.7.3"
+          working-directory: "android"
+          bundler-cache: true
+
+      - name: Beta deploy using Fastlane
+        env: 
+          RELEASE_NOTE: ${{ github.event.inputs.release_notes }}
+          FIREBASE_GROUP: ${{ github.event.inputs.app_target }}
+        run: |
+          cd android
+          bundle exec fastlane beta
+      
+      - name: build version bump
+        uses: actions-go/push@master
+        with:
+          commit-message: '[Auto] build version bump'
+          remote: origin

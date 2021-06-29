@@ -1,0 +1,97 @@
+name: ios beta deploy
+
+on: 
+  workflow_dispatch:
+    inputs:
+      app_target:
+        description: 'firebase app distribution group'
+        required: true
+        default: 'ios_tester_group'
+      release_notes:
+        description: 'release notes'
+        required: false
+        default: 'bugfix'
+
+env:
+    NODE_VERSION: 16.x
+    GIT_AUTHORIZATION: ${{ secrets.GH_TOKEN }}
+    CACHE_NODE_MODULE: node_modules@v1
+    CACHE_POD_MODULE: pods@v1
+
+jobs:
+  init:
+    runs-on: macOS-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Cache node modules
+        id: node-cache
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ env.CACHE_NODE_MODULE }}-${{ hashFiles('**/package-lock.json') }}
+            
+      - name: Install packages
+        if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+        
+  deploy-ios-beta:
+    runs-on: macOS-latest
+    needs: [init]
+
+    env: 
+      MATCH_PASSWORD: ${{ secrets.FASTLANE_MATCH_PASSWORD }}
+      FIREBASE_APP: ${{ secrets.FIREBASE_IOS_APP_ID }}
+      FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+      KEYCHAIN_NAME: lycl
+      KEYCHAIN_PASSWORD: lycl_keychain_password
+      ANDROID_KEY_FILE: lycl.keystore
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        with:
+          path: '**/node_modules'
+          key: ${{ runner.os }}-${{ env.CACHE_NODE_MODULE }}-${{ hashFiles('**/package-lock.json') }}
+
+      - name: Cache Pods
+        uses: actions/cache@v2
+        with:
+          path: 'ios/Pods'
+          key: ${{ runner.os }}-${{ env.CACHE_POD_MODULE }}-${{ hashFiles('ios/Podfile.lock') }}
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "2.7.3"
+          working-directory: "ios"
+          bundler-cache: true
+
+      - name: Install Pods, Bundle
+        run: | 
+          cd ios
+          bundle exec pod install
+          
+      - name: Beta deploy using Fastlane
+        env: 
+          RELEASE_NOTE: ${{ github.event.inputs.release_notes }}
+          FIREBASE_GROUP: ${{ github.event.inputs.app_target }}
+        run: |
+          cd ios
+          bundle exec fastlane beta
+
+      - name: build version bump
+        uses: actions-go/push@master
+        with:
+          commit-message: '[Auto] build version bump'
+          remote: origin

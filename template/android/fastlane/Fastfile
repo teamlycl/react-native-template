@@ -1,0 +1,23 @@
+default_platform(:android)
+
+platform :android do
+  desc "Beta Build and firebase app distribution"
+  lane :beta do
+    gradle(
+      task: "incrementVersionCode clean assembleRelease",
+      properties: {
+        "KEY" => ENV['ANDROID_KEY_FILE_NAME'],
+        "KEY_ALIAS" => ENV['ANDROID_KEY_ALIAS'],
+        "STORE_PASSWORD" => ENV['ANDROID_KEY_PASSWORD'],
+        "KEY_PASSWORD" => ENV['ANDROID_KEY_PASSWORD'],
+      }
+    )
+    
+    firebase_app_distribution(
+      app: ENV['FIREBASE_APP'],
+      firebase_cli_token: ENV['FIREBASE_TOKEN'],
+      groups: ENV['FIREBASE_GROUP'],
+      release_notes: ENV['RELEASE_NOTE'],
+      debug: true)
+  end
+end
