@@ -148,11 +148,11 @@ android {
         }
     }
     signingConfigs {
-         release {
-            storeFile project.hasProperty('KEY') ? file(project.KEY) : 'default'
-            storePassword project.hasProperty('STORE_PASSWORD') ? project.STORE_PASSWORD : 'default'
-            keyAlias project.hasProperty('KEY_ALIAS') ? project.KEY_ALIAS : 'default'
-            keyPassword project.hasProperty('KEY_PASSWORD') ? project.KEY_PASSWORD : 'default'
+        release {
+            storeFile project.hasProperty('KEY') ? file(project.KEY) : file('debug.keystore')
+            storePassword project.hasProperty('STORE_PASSWORD') ? project.STORE_PASSWORD : 'android'
+            keyAlias project.hasProperty('KEY_ALIAS') ? project.KEY_ALIAS : 'androiddebugkey'
+            keyPassword project.hasProperty('KEY_PASSWORD') ? project.KEY_PASSWORD : 'android'
         }
 
         debug {
