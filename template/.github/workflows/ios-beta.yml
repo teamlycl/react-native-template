@@ -1,6 +1,6 @@
 name: ios beta deploy
 
-on: 
+on:
   workflow_dispatch:
     inputs:
       app_target:
@@ -13,10 +13,11 @@ on:
         default: 'bugfix'
 
 env:
-    NODE_VERSION: 16.x
-    GIT_AUTHORIZATION: ${{ secrets.GH_TOKEN }}
-    CACHE_NODE_MODULE: node_modules@v1
-    CACHE_POD_MODULE: pods@v1
+  NODE_VERSION: 16.x
+  GIT_AUTHORIZATION: ${{ secrets.GH_TOKEN }}
+  CACHE_NODE_MODULE: node_modules@v1
+  CACHE_POD_MODULE: pods@v1
+  APP_NAME: template
 
 jobs:
   init:
@@ -37,16 +38,16 @@ jobs:
         with:
           path: '**/node_modules'
           key: ${{ runner.os }}-${{ env.CACHE_NODE_MODULE }}-${{ hashFiles('**/package-lock.json') }}
-            
+
       - name: Install packages
         if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
-        
+
   deploy-ios-beta:
     runs-on: macOS-latest
     needs: [init]
 
-    env: 
+    env:
       MATCH_PASSWORD: ${{ secrets.FASTLANE_MATCH_PASSWORD }}
       FIREBASE_APP: ${{ secrets.FIREBASE_IOS_APP_ID }}
       FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
@@ -73,17 +74,18 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "2.7.3"
-          working-directory: "ios"
+          ruby-version: '2.7.3'
+          working-directory: 'ios'
           bundler-cache: true
 
       - name: Install Pods, Bundle
-        run: | 
+        run: |
           cd ios
           bundle exec pod install
-          
+          plutil -replace CodePushDeploymentKey -string ${{ secrets.CODEPUSH_DEPLOYMENT_IOS_STAGING_KEY }} ${{ env.APP_NAME }}/Info.plist
+
       - name: Beta deploy using Fastlane
-        env: 
+        env:
           RELEASE_NOTE: ${{ github.event.inputs.release_notes }}
           FIREBASE_GROUP: ${{ github.event.inputs.app_target }}
         run: |
