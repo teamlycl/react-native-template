@@ -84,13 +84,14 @@ jobs:
           bundle exec pod install
           plutil -replace CodePushDeploymentKey -string ${{ secrets.CODEPUSH_DEPLOYMENT_IOS_STAGING_KEY }} ${{ env.APP_NAME }}/Info.plist
 
-      - name: Beta deploy using Fastlane
+      - name: Beta deploy using Fastlane, Reset Codepush Deployment Key
         env:
           RELEASE_NOTE: ${{ github.event.inputs.release_notes }}
           FIREBASE_GROUP: ${{ github.event.inputs.app_target }}
         run: |
           cd ios
           bundle exec fastlane beta
+          plutil -replace CodePushDeploymentKey -string '' ${{ env.APP_NAME }}/Info.plist
 
       - name: build version bump
         uses: actions-go/push@master
