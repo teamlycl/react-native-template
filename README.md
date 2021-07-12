@@ -9,12 +9,12 @@ npx react-native init AppName --template @teamlycl/react-native-template
 ## Spec
 
 | Library                           | Desc                                                               |
-| --------------------------------- | ------------------------------------------------------------------ | --- |
+| --------------------------------- | ------------------------------------------------------------------ |
 | ruby 2.7.3                        | system ruby 말고, rbenv를 통한 설치가 필요합니다.                  |
 | React-native 0.64.1               | -                                                                  |
 | React 17.0.1                      | -                                                                  |
 | Fastlane                          | ios 인증서 관리 및 앱 테스트 환경 배포 (firebase app distribution) |
-|                                   | Fastlane match, gym 사용                                           |     |
+|                                   | Fastlane match, gym 사용                                           |
 | @react-native-firebase/app 12.0.1 | -                                                                  |
 
 ## Setting
