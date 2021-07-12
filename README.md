@@ -16,6 +16,11 @@ npx react-native init AppName --template @teamlycl/react-native-template
 || Fastlane match, gym 사용 ||
 | @react-native-firebase/app 12.0.1 | - |
 
+## features
+- fastlane 을 이용한 키 동기화 및 빌드
+- github action 을 통한 firebase app distribution 배포
+- android flavor를 이용한 테스트 환경 구성
+
 ## Setting
 ### git secrets
 ------
