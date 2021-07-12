@@ -12,6 +12,9 @@ import React from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, useColorScheme, View } from 'react-native';
 
 import { Colors, DebugInstructions, Header, LearnMoreLinks, ReloadInstructions } from 'react-native/Libraries/NewAppScreen';
+import codePush from 'react-native-code-push';
+
+let codePushOptions = { checkFrequency: codePush.CheckFrequency.ON_APP_RESUME };
 
 const Section: React.FC<{
   title: string;
@@ -96,4 +99,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default App;
+export default codePush(codePushOptions)(App);
