@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">template (DEV)</string>
+    <string moduleConfig="true" name="CodePushDeploymentKey"></string>
+</resources>

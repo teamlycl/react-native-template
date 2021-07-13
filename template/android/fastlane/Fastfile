@@ -4,7 +4,7 @@ platform :android do
   desc "Beta Build and firebase app distribution"
   lane :beta do
     gradle(
-      task: "incrementVersionCode clean assembleRelease",
+      task: "incrementVersionCode clean assembleDevRelease",
       properties: {
         "KEY" => ENV['ANDROID_KEY_FILE_NAME'],
         "KEY_ALIAS" => ENV['ANDROID_KEY_ALIAS'],

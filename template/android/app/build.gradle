@@ -1,3 +1,6 @@
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+
 apply plugin: "com.android.application"
 apply plugin: "com.google.gms.google-services"
 
@@ -127,6 +130,8 @@ android {
 
     compileSdkVersion rootProject.ext.compileSdkVersion
 
+    flavorDimensions "default"
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -189,6 +194,22 @@ android {
                         defaultConfig.versionCode * 1000 + versionCodes.get(abi)
             }
 
+        }
+    }
+
+    productFlavors {
+        dev {
+            applicationIdSuffix ".dev"
+            minSdkVersion rootProject.ext.minSdkVersion
+            targetSdkVersion rootProject.ext.targetSdkVersion
+            versionCode getIncrementingVersionCode()
+            buildConfigField "String", "FLAVOR_TYPE", "\"dev\""
+        }
+        prod {
+            minSdkVersion rootProject.ext.minSdkVersion
+            targetSdkVersion rootProject.ext.targetSdkVersion
+            versionCode getIncrementingVersionCode()
+            buildConfigField "String", "FLAVOR_TYPE", "\"prod\""
         }
     }
 }
@@ -258,16 +279,38 @@ task incrementVersionCode {
 //can call this from your android DSL
 int getIncrementingVersionCode() {
     def versionPropsFile = file('version.properties')
+    def codeType = getCurrentFlavor() == 'prod' ? "VERSION_CODE" : "VERSION_CODE_DEV"
 
     if (versionPropsFile.canRead()) {
         def Properties versionProps = new Properties()
 
         versionProps.load(new FileInputStream(versionPropsFile))
 
-        def code = versionProps['VERSION_CODE'].toInteger()
+        def code = versionProps[codeType].toInteger()
         return code
     } else {
         throw new GradleException("Could not read version.properties!")
+    }
+}
+
+def getCurrentFlavor() {
+    Gradle gradle = getGradle()
+    String tskReqStr = gradle.getStartParameter().getTaskRequests().toString()
+
+    Pattern pattern
+
+    if( tskReqStr.contains( "assemble" ) )
+        pattern = Pattern.compile("assemble(\\w+)(Release|Debug)")
+    else
+        pattern = Pattern.compile("generate(\\w+)(Release|Debug)")
+
+    Matcher matcher = pattern.matcher( tskReqStr )
+
+    if( matcher.find() )
+        return matcher.group(1).toLowerCase()
+    else {
+        println "NO MATCH FOUND"
+        return ""
     }
 }
 
