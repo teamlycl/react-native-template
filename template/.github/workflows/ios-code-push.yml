@@ -12,7 +12,7 @@ env:
   NODE_VERSION: 16.x
   GIT_AUTHORIZATION: ${{ secrets.GH_TOKEN }}
   CACHE_NODE_MODULE: node_modules@v1
-  DEPLOYMENT_NAME: dev-lycl/template-ios
+  DEPLOYMENT_NAME: dev-lycl/template-ios # appcenter에 등록된 username/appname
 
 jobs:
   init:

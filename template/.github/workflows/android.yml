@@ -98,6 +98,11 @@ jobs:
           xmlstarlet edit --inplace --update "//resources/string[@name='CodePushDeploymentKey']" --value ${{ secrets.CODEPUSH_DEPLOYMENT_ANDROID_STAGING_KEY }} app/src/main/res/values/strings.xml
           bundle exec fastlane beta
 
+      - name: Reset Codepush Deployment Key
+        run: |
+          cd android
+          xmlstarlet edit --inplace --update "//resources/string[@name='CodePushDeploymentKey']" --value '' app/src/main/res/values/strings.xml
+
       - name: build version bump
         uses: actions-go/push@master
         with:
