@@ -17,7 +17,6 @@ env:
   GIT_AUTHORIZATION: ${{ secrets.GH_TOKEN }}
   CACHE_NODE_MODULE: node_modules@v1
   CACHE_POD_MODULE: pods@v1
-  APP_NAME: template
 
 jobs:
   init:
@@ -82,7 +81,7 @@ jobs:
         run: |
           cd ios
           bundle exec pod install
-          plutil -replace CodePushDeploymentKey -string ${{ secrets.CODEPUSH_DEPLOYMENT_IOS_STAGING_KEY }} ${{ env.APP_NAME }}/Info.plist
+          plutil -replace CodePushDeploymentKey -string ${{ secrets.CODEPUSH_DEPLOYMENT_IOS_STAGING_KEY }} dev-Info.plist
 
       - name: Beta deploy using Fastlane, Reset Codepush Deployment Key
         env:
@@ -91,7 +90,7 @@ jobs:
         run: |
           cd ios
           bundle exec fastlane beta
-          plutil -replace CodePushDeploymentKey -string '' ${{ env.APP_NAME }}/Info.plist
+          plutil -replace CodePushDeploymentKey -string '' dev-Info.plist
 
       - name: build version bump
         uses: actions-go/push@master

@@ -4,7 +4,10 @@
 
 # For more information about the Appfile, see:
 #     https://docs.fastlane.tools/advanced/#appfile
-app_identifier('##TYPE_PLEASE##')
+
+# .dev 는 테스트 환경입니다.
+# 사용하지 않을경우 연관된 환경을 모두 제거 해주셔야 합니다.
+app_identifier(['##TYPE_PLEASE##', '##TYPE_PLEASE##.dev'])
 
 apple_id('##TYPE_PLEASE##')
 

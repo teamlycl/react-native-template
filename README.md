@@ -21,6 +21,7 @@ npx react-native init AppName --template @teamlycl/react-native-template
 - fastlane 을 이용한 키 동기화 및 빌드
 - github action 을 통한 firebase app distribution 배포
 - android flavor를 이용한 테스트 환경 구성
+- ios prod, dev target을 이용한 환경 구분
 
 ## Setting
 
@@ -32,8 +33,8 @@ github 설정에서 secrets 값 설정을 우선 완료 해야 합니다.
 
 | secrets id                                                                                                               | value                                                 |
 | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------- |
-| **FIREBASE_APP_ID**                                                                                                      | firebase 에서 생성한 android id 값                    |
-| **FIREBASE_IOS_APP_ID**                                                                                                  | firebase 에서 생성한 ios id 값                        |
+| **FIREBASE_APP_ID**                                                                                                      | firebase 에서 생성한 android id 값 (dev)                    |
+| **FIREBASE_IOS_APP_ID**                                                                                                  | firebase 에서 생성한 ios id 값 (dev)                        |
 | **FIREBASE_TOKEN**                                                                                                       | firebase의 token 값                                   |
 | fastlane 설치 후 **bundle exec fastlane run firebase_app_distribution_login** 명령어를 통해 로그인 후 token 얻을 수 있음 |
 | **APPCENTER_ACCESS_TOKEN**                                                                                               | appcenter token (appcenter 접근을 위해 사용)          |
