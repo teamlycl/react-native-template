@@ -33,7 +33,7 @@ platform :ios do
     increment_build_number
     
     gym(
-      scheme: 'dev',
+      scheme: 'dev', # dev로 하여 배포용 앱으로 동작
       workspace: XCODE_WORKSPACE,
       clean: true,
       silent: true,
